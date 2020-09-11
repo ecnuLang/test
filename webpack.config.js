@@ -40,7 +40,7 @@ const config = {
             },
             {
                 test: /\.jsx$/,
-                loader: 'vue-loader'
+                loader: 'babel-loader'
             },
             //stylus-loader专门用来处理stylus文件，处理完成后变成css文件，交给css-loader.webpack的loader就是这样一级一级向上传递，每一层loader只处理自己关心的部分
             {
