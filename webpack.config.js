@@ -1,6 +1,9 @@
 const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-module.exports = {
+const isDev = process.env.NODE_ENV === 'development';
+const HTMLPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const config  = {
     target: 'web',
     mode: 'development',
     entry: path.join(__dirname, 'src/index.js'),
@@ -52,3 +55,4 @@ module.exports = {
         ]
     }
 }
+module.exports = config;
