@@ -3,7 +3,8 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const isDev = process.env.NODE_ENV === 'development';
 const HTMLPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
-const config  = {
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const config = {
     target: 'web',
     mode: 'development',
     entry: path.join(__dirname, 'src/index.js'),
@@ -12,7 +13,9 @@ const config  = {
         path: path.join(__dirname, 'dist')
     },
     plugins: [
-        new VueLoaderPlugin()
+        new CleanWebpackPlugin(),
+        new VueLoaderPlugin(),
+        new HTMLPlugin()
     ],
 
 
@@ -27,15 +30,35 @@ const config  = {
                 test: /\.css$/,
                 use: [
                     'vue-style-loader',
-                    'css-loader'
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            esModule: false,
+                        }
+                    }
                 ]
+            },
+            {
+                test: /\.jsx$/,
+                loader: 'vue-loader'
             },
             //stylus-loader专门用来处理stylus文件，处理完成后变成css文件，交给css-loader.webpack的loader就是这样一级一级向上传递，每一层loader只处理自己关心的部分
             {
                 test: /\.styl/,
                 use: [
                     'vue-style-loader',
-                    'css-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            esModule: false,
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            sourceMap: true
+                        }
+                    },
                     'stylus-loader'
                 ]
             },
@@ -54,5 +77,35 @@ const config  = {
             }
         ]
     }
+}
+if (isDev) {
+    config.devServer = {
+        port: 8000,
+        // open: true,
+        overlay: {
+            errors: true
+        },
+        hot: true
+    }
+
+}
+else {
+    config.entry = {
+        app: path.join(__dirname, 'src/index.js'),
+        vendor: ['vue']
+    }
+    config.output.filename = '[name].[chunkhash:8].js';
+    config.optimization = {
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    name: "vendor",
+                    chunks: "initial",
+                    minChunks: 2
+                }
+            }
+        }
+    }
+
 }
 module.exports = config;
